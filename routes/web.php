@@ -75,6 +75,23 @@ Route::group(['middleware'=>['frontlogin']],function(){
 	//Checkout//
 	Route::match(['get','post'],'/checkout','ProductsController@checkout');
 
+	//OrderReview page//
+	Route::match(['get','post'],'/order-review','ProductsController@orderReview');
+
+	//Place Order//
+	Route::match(['get','post'],'/place-order','ProductsController@placeOrder');
+
+	//User Orders//
+	Route::get('/orders','ProductsController@userOrder');
+	Route::get('/orders/{id}','ProductsController@userOrderDetails');
+
+	//Thanks Page//
+	Route::get('/thanks','ProductsController@thanksPage');
+
+	//Paypal Route//
+	Route::get('/esewa','ProductsController@Esewa');
+
+
 });
 
 
@@ -116,8 +133,9 @@ Route::group(['middleware'=>['auth']],function(){
 	Route::match(['get','post'], '/admin/add-banner','BannerController@addBanner');
 	Route::get('/admin/view-banners','BannerController@viewBanner');
 	Route::match(['get','post'],'/admin/edit-banner/{id}','BannerController@editBanner');
-	Route::get('../admin/delete-banner/{id}','BannerController@deleteBanner');
+	Route::get('/admin/delete-banner/{id}','BannerController@deleteBanner');
 
+	// Route::match(['get','post'],'/admin/add-logo','LogoController@addLogo');
 });
 
 //AdminLogout//

@@ -27,7 +27,6 @@
         <li  <?php if(preg_match("/view-banners/i",$url)){ ?> class="active" <?php } ?> ><a href="{{url('/admin/view-banners') }}">View Banners</a></li>
       </ul>
     </li>
-    
   </ul>
 </div>
   <!--sidebar-menu-->

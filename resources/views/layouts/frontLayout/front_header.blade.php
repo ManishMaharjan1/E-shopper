@@ -34,7 +34,7 @@ $mainCategories = Controller::mainCategories();
 				<div class="row">
 					<div class="col-md-4 clearfix">
 						<div class="logo pull-left">
-							<a href="{{url('/')}}"><img src="{{asset('images/frontend_images/home/logo.png')}}" alt="" /></a>
+							<a href="{{url('/')}}"><img {{-- style="width: 139px;" --}} src="{{asset('images/logo/logo.png')}}" alt="" /></a>
 						</div>
 						{{-- <div class="btn-group pull-right clearfix">
 							<div class="btn-group">
@@ -65,7 +65,7 @@ $mainCategories = Controller::mainCategories();
 							<ul class="nav navbar-nav">
 								{{-- <li><a href=""><i class="fa fa-star"></i> Wishlist</a></li> --}}
 								{{-- <li><a href="{{url('/account')}}"><i class="fa fa-user"></i> Account</a></li> --}}
-								<li><a href="{{url('/checkout')}}"><i class="fa fa-crosshairs"></i> Checkout</a></li>
+								<li><a href="{{url('/orders')}}"><i class="fa fa-crosshairs"></i> Checkout Order</a></li>
 								<li><a href="{{url('/cart')}}"><i class="fa fa-shopping-cart"></i> Cart</a></li>
 								@if(empty(Auth::check()))
 								<li><a href="{{url('/login-register')}}"><i class="fa fa-lock"></i> Login</a></li>

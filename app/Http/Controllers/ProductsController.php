@@ -12,6 +12,9 @@ use App\Coupon;
 use App\Banner;
 use App\Country;
 use App\User;
+use App\DeliveryAddresses;
+use App\Order;
+use App\OrdersProduct;
 use Session;
 use Auth;
 use Image;
@@ -69,21 +72,21 @@ class ProductsController extends Controller
 		}  
 		$categories = Category::where(["parent_id"=>0])->get();
 		$categories_dropdown = "<option value='' selected disabled> Select</option>";
-			foreach($categories as $cat){
-				$categories_dropdown .= "<option value='".$cat->id."'>".$cat->category_name."</option>";
-				$sub_categories = Category::where(['parent_id'=>$cat->id])->get();
-				foreach ($sub_categories as $sub_cat) {
-					$categories_dropdown .="<option value = '".$sub_cat->id."'>&nbsp;--&nbsp;".$sub_cat->category_name."</option>";
+		foreach($categories as $cat){
+			$categories_dropdown .= "<option value='".$cat->id."'>".$cat->category_name."</option>";
+			$sub_categories = Category::where(['parent_id'=>$cat->id])->get();
+			foreach ($sub_categories as $sub_cat) {
+				$categories_dropdown .="<option value = '".$sub_cat->id."'>&nbsp;--&nbsp;".$sub_cat->category_name."</option>";
 
 			// $subcateglevel = Category::where(['parent_id'=>$sub_cat->id])->get();
 			// foreach($subcateglevel as $sub){
 			// 	$categories_dropdown .="<option value = '".$sub->id."'>$nbsp;--&nbsp;--$nbsp;".$sub->category_name."</option>";
 			// }
-					$sub_category = Category::where(['parent_id'=>$sub_cat->id])->get();
-		 			foreach($sub_category as $sublevels){
-		 			$categories_dropdown .="<option value = '".$sublevels->id."'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;".$sublevels->category_name."</option>";
-		 	}
-		  }
+				$sub_category = Category::where(['parent_id'=>$sub_cat->id])->get();
+				foreach($sub_category as $sublevels){
+					$categories_dropdown .="<option value = '".$sublevels->id."'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;".$sublevels->category_name."</option>";
+				}
+			}
 		}
 		return view('admin.products.add-product')->with(compact('categories_dropdown'));
 	}
@@ -127,13 +130,13 @@ class ProductsController extends Controller
 					Image::make($image_tmp)->fit(300,300)->save($small_image_path);
 
     				//$products->image = $filename; --}}//
-					}
 				}
+			}
 			else if(!empty($data['current_image'])){
-					$fileName = $data['current_image'];
-				}
-				else{
-					$fileName = '';
+				$fileName = $data['current_image'];
+			}
+			else{
+				$fileName = '';
 			}
 			// foreach($data['product_color'] as $key => $colors){
 
@@ -185,15 +188,15 @@ class ProductsController extends Controller
 
 		//Delete large image if not exists in folder//
 		if (file_exists(public_path('images/backend_images/products/large/'. $productImage->image))){
-            unlink(public_path('images/backend_images/products/large/'. $productImage->image));
-        }
+			unlink(public_path('images/backend_images/products/large/'. $productImage->image));
+		}
 		//Delete medium image if not exists in folder//
 		if (file_exists(public_path('images/backend_images/products/medium/'. $productImage->image))){
-            unlink(public_path('images/backend_images/products/medium/'. $productImage->image));
-        }
+			unlink(public_path('images/backend_images/products/medium/'. $productImage->image));
+		}
 		//Delete small image if not exists in folder//
 		if (file_exists(public_path('images/backend_images/products/small/'. $productImage->image))){
-         	unlink(public_path('images/backend_images/products/small/'. $productImage->image));
+			unlink(public_path('images/backend_images/products/small/'. $productImage->image));
 		}
 
 		//Products image deletion from table only// 
@@ -207,7 +210,7 @@ class ProductsController extends Controller
 	}
 
 	//Product Attributes function//
-    public function addAttributes(Request $request, $id = null){
+	public function addAttributes(Request $request, $id = null){
 		$productDetails = Products::with('attributes')->where(['id'=>$id])->first();
 		// $productDetails = json_decode(json_encode($productDetails));
 		// echo"<pre>"; print_r($productDetails); die; 
@@ -215,17 +218,17 @@ class ProductsController extends Controller
 			$data = $request->all();
 			// echo"<pre>"; print_r($data); die;
 			foreach($data['sku'] as $key => $val){
-    			if(!empty($val)){
-    				$attrCountSKU = ProductsAttribute::where('sku', $val)->count();
-    				if($attrCountSKU>0){
-    					return redirect('admin/add-attributes/'.$id)->with('flash_message_error','SKU already exists! Please add another SKU!!');
-    				}
+				if(!empty($val)){
+					$attrCountSKU = ProductsAttribute::where('sku', $val)->count();
+					if($attrCountSKU>0){
+						return redirect('admin/add-attributes/'.$id)->with('flash_message_error','SKU already exists! Please add another SKU!!');
+					}
 
     				//product size duplication check//
-    				$attrCountSize = ProductsAttribute::where(['product_id'=>$id,'size'=>$data['size'][$key]])->count();
-    				if($attrCountSize>0){
-    					return redirect('admin/add-attributes/'.$id)->with('flash_message_error','"'.$data['size'][$key].'"Sizes already exists! Please add another size!!');
-    				}
+					$attrCountSize = ProductsAttribute::where(['product_id'=>$id,'size'=>$data['size'][$key]])->count();
+					if($attrCountSize>0){
+						return redirect('admin/add-attributes/'.$id)->with('flash_message_error','"'.$data['size'][$key].'"Sizes already exists! Please add another size!!');
+					}
 
 					$attribute = new ProductsAttribute;
 					$attribute->product_id = $id;
@@ -240,7 +243,6 @@ class ProductsController extends Controller
 			return redirect('admin/add-attributes/'.$id)->with('flash_message_success','ProductsAttribute has been added Successfully!!!');
 		}
 		return view('admin.products.add_attributes')->with(compact('productDetails'));
-
 	}
 
 	public function editAttributes(Request $request, $id=null){
@@ -249,7 +251,7 @@ class ProductsController extends Controller
 			foreach($data['idAttr'] as $key => $attr){
 				ProductsAttribute::where(['id'=>$data['idAttr'][$key]])->update(['price'=>$data['price'][$key],'stock'=>$data['stock'][$key]]);
 			}
-		return redirect()->back()->with('flash_message_success',"Attributes Updated Sucessfully!!");
+			return redirect()->back()->with('flash_message_success',"Attributes Updated Sucessfully!!");
 		}
 	}
 	
@@ -268,7 +270,7 @@ class ProductsController extends Controller
 		}
 
 		//Get all categories and subcategories//
-    	$categories = Category::with('categories')->where(['parent_id'=>0])->get();
+		$categories = Category::with('categories')->where(['parent_id'=>0])->get();
 		$categorydetails= Category::where(['url'=>$url])->first();
 
 		if($categorydetails->parent_id==0){
@@ -282,7 +284,7 @@ class ProductsController extends Controller
 		}
 		else{
 			//if url is sub-category url
-		$allProducts = Products::where(['category_id'=>$categorydetails->id])->get();
+			$allProducts = Products::where(['category_id'=>$categorydetails->id])->get();
 		}
 		$banners = Banner::where('status','1')->get();
 		return view('products.listing')->with(compact('categories','categorydetails','allProducts','banners'));			 
@@ -371,15 +373,15 @@ class ProductsController extends Controller
 
 		//Delete large image if not exists in folder//
 		if (file_exists(public_path('images/backend_images/products/large/'. $productImage->image))){
-            unlink(public_path('images/backend_images/products/large/'. $productImage->image));
-        }
+			unlink(public_path('images/backend_images/products/large/'. $productImage->image));
+		}
 		//Delete medium image if not exists in folder//
 		if (file_exists(public_path('images/backend_images/products/medium/'. $productImage->image))){
-            unlink(public_path('images/backend_images/products/medium/'. $productImage->image));
-        }
+			unlink(public_path('images/backend_images/products/medium/'. $productImage->image));
+		}
 		//Delete small image if not exists in folder//
 		if (file_exists(public_path('images/backend_images/products/small/'. $productImage->image))){
-         	unlink(public_path('images/backend_images/products/small/'. $productImage->image));
+			unlink(public_path('images/backend_images/products/small/'. $productImage->image));
 		}
 
 		//Products image deletion from table only// 
@@ -396,14 +398,17 @@ class ProductsController extends Controller
 		$data = $request->all();
 		// echo "<pre>";print_r($data); die;
 
-		if(empty($data['user_email'])){
+		if(empty(Auth::User()->email)){
 			$data['user_email']='';
+		}else{
+			$data['user_email'] = Auth::User()->email;
 		}
+
 		$session_id = Session::get('session_id');
 
-		if(empty($session_id)){
-		$session_id = str_random(20);
-		Session::put('session_id', $session_id);
+		if(!isset($session_id)){
+			$session_id = str_random(20);
+			Session::put('session_id', $session_id);
 		}
 
 		$size = explode("-",$data['size']);
@@ -417,8 +422,6 @@ class ProductsController extends Controller
 		}
 		else{
 
-			
-
 			DB::table('cart')->insert(['product_id'=>$data['product_id'],'product_name'=>$data['product_name'],'product_code'=>$getSKU->sku,'product_color'=>$data['product_color'],'price'=>$data['price'],'size'=>$size[1],'quantity'=>$data['quantity'],'user_email'=>$data['user_email'],'session_id'=>$session_id]);
 		}
 
@@ -426,12 +429,17 @@ class ProductsController extends Controller
 	}
 
 	public function cart(){
-		$session_id = Session::get('session_id');
-		$usercart = DB::table('cart')->where(['session_id'=>$session_id])->get();
+		if(Auth::check()){
+			$user_email = Auth::User()->email;
+			$usercart = DB::table('cart')->where(['user_email'=>$user_email])->get();
+		}
+		else{
+			$session_id = Session::get('session_id');
+			$usercart = DB::table('cart')->where(['session_id'=>$session_id])->get();
+		}
 		foreach($usercart as $key => $product){
 			$productDetails = Products::where('id',$product->product_id)->first();
 			$usercart[$key]->image = $productDetails->image;
-
 		}
 		// echo "<pre>"; print_r($usercart); die;
 		return view('Products.cart')->with(compact('usercart'));
@@ -456,8 +464,8 @@ class ProductsController extends Controller
 		echo $getAttributeStock->stock; 
 		echo $update_quantity = $getCartDetails->quantity+$quantity;
 		if($getAttributeStock->stock >= $update_quantity){
-		DB::table('cart')->where('id',$id)->increment('quantity',$quantity);
-		return redirect('cart')->with('flash_message_success', 'Product quantity has been updated Successfully');			
+			DB::table('cart')->where('id',$id)->increment('quantity',$quantity);
+			return redirect('cart')->with('flash_message_success', 'Product quantity has been updated Successfully');			
 		}
 		else{
 			return redirect('cart')->with('flash_message_error', ' Required product quantity is not available');	
@@ -485,8 +493,8 @@ class ProductsController extends Controller
 
 			//If coupon is expired//
 			$expiry_date = $couponDetails->expiry_date;
-			$current_date = date('y-m-d'); 
-			if($expiry_date<$current_date){
+			$current_date = date('Y-m-d'); 
+			if($expiry_date < $current_date){
 				return redirect()->back()->with('flash_message_error','Coupon has been expired');
 			}
 
@@ -494,7 +502,17 @@ class ProductsController extends Controller
 
 			//Get cart total amount//
 			$session_id = Session::get('session_id');
-			$usercart = DB::table('cart')->where(['session_id'=>$session_id])->get();
+
+			if(Auth::check()){
+			$user_email = Auth::User()->email;
+			$usercart = DB::table('cart')->where(['user_email'=>$user_email])->get();
+			}
+			else{
+				$session_id = Session::get('session_id');
+				$usercart = DB::table('cart')->where(['session_id'=>$session_id])->get();
+			}
+
+
 			$total_amount = 0;
 			foreach($usercart as $item){
 				$total_amount = $total_amount + ($item->price * $item->quantity); 
@@ -516,11 +534,164 @@ class ProductsController extends Controller
 		}
 	}
 
-	public function checkout(){
+	public function checkout(Request $request){
 		$user_id = Auth::User()->id;
+		$user_email = Auth::User()->email;
 		$userDetails = User::find($user_id);
 		$getCountry = Country::get();
-		return view('products.checkout')->with(compact('userDetails','getCountry'));
+
+		//Update cart table with user email//
+		$session_id = Session::get('session_id');
+		DB::table('cart')->where(['session_id'=>$session_id])->update([ 'user_email'=>$user_email]);
+
+		//Check if shipping address exits//
+		$shippingCount = DeliveryAddresses::where('user_id',$user_id)->count();
+		$shippingDetails = array();
+		if($shippingCount>0){
+			$shippingDetails = DeliveryAddresses::where('user_id',$user_id)->first();
+		}
+
+		if($request->isMethod('post')){
+			$data = $request->all();
+			// dump($data);
+			//If ceheckout form are empty//
+			if(empty($data['billing_name']) || empty($data['billing_address']) ||empty($data['billing_city']) || empty($data['billing_state']) || empty($data['billing_country']) || empty($data['billing_pincode']) || empty($data['billing_mobile']) || empty($data['shipping_name']) || empty($data['shipping_address']) || empty($data['shipping_city']) || empty($data['shipping_state']) || empty($data['shipping_country']) || empty($data['shipping_pincode']) || empty($data['shipping_mobile'])){
+				return redirect()->back()->with('flash_message_error','Please fill the all information field');
+			}
+
+			//Update User Details//
+			User::where('id',$user_id)->update(['name'=>$data['billing_name'],'address'=>$data['billing_address'],'city'=>$data['billing_city'], 'state'=>$data['billing_state'], 'country'=>$data['billing_country'], 'pincode'=>$data['billing_pincode'], 'mobile'=>$data['billing_mobile']]);
+
+			if($shippingCount>0){
+			//Update Shipping Address//
+			DeliveryAddresses::where('user_id',$user_id)->update(['name'=>$data['shipping_name'],'address'=>$data['shipping_address'],'city'=>$data['shipping_city'], 'state'=>$data['shipping_state'], 'country'=>$data['shipping_country'], 'pincode'=>$data['shipping_pincode'], 'mobile'=>$data['shipping_mobile']]);
+			}else{
+			//Add new Shipping address//
+			$shipping = new DeliveryAddresses;
+			$shipping->user_id = $user_id;
+			$shipping->user_email = $user_email;
+			$shipping->name = $data['shipping_name'];
+			$shipping->address =$data['shipping_address'];
+			$shipping->city =$data['shipping_city'];
+			$shipping->state =$data['shipping_state'];
+			$shipping->country =$data['shipping_country'];
+			$shipping->pincode =$data['shipping_pincode'];
+			$shipping->mobile =$data['shipping_mobile'];
+			$shipping->save();
+			}
+			return redirect()->action('ProductsController@orderReview');
+		}
+		return view('products.checkout')->with(compact('userDetails','getCountry','shippingDetails'));
+	}
+
+	//Order Review Function//
+	public function orderReview(){
+		$user_id = Auth::User()->id;
+		$user_email = Auth::User()->email;
+		$userDetails = User::where('id',$user_id)->first();
+		$shippingDetails = DeliveryAddresses::where('user_id',$user_id)->first();
+		// $shippingDetails = json_decode(json_encode($shippingDetails));
+		$usercart = DB::table('cart')->where(['user_email'=>$user_email])->get();
+		foreach($usercart as $key => $product){
+			$productDetails = Products::where('id',$product->product_id)->first();
+			$usercart[$key]->image = $productDetails->image;
+
+		}
+		// echo "<pre>"; print_r($usercart); die;
+		return view('products.order_review',compact('userDetails','shippingDetails','usercart'));
+	}
+
+	//Order placement function//
+	public function placeOrder(Request $request){
+		if($request->isMethod('post')){
+			$data = $request->all();
+			$user_id = Auth::User()->id;
+			$user_email = Auth::User()->email;
+			
+			// Get Shipping Details//
+			$shippingDetails = DeliveryAddresses::where(['user_email'=>$user_email])->first();
+
+			if(empty(Session::get('CouponCode'))){
+				$coupon_code = '';
+			}else{
+				 $coupon_code = Session::get('CouponCode');
+			}
+			if(empty(Session::get('CouponAmount'))){
+				$coupon_amount = '';
+			}else{
+				 $coupon_amount = Session::get('CouponAmount');
+			}
+
+			$order = new Order;
+			$order->user_id = $user_id;
+			$order->user_email = $user_email;
+			$order->name = $shippingDetails->name;
+			$order->address = $shippingDetails->address;
+			$order->city = $shippingDetails->city;
+			$order->state = $shippingDetails->state;
+			$order->country = $shippingDetails->country;
+			$order->pincode = $shippingDetails->pincode;
+			$order->mobile = $shippingDetails->mobile;
+			$order->coupon_code = $coupon_code;
+			$order->coupon_amount = $coupon_amount;
+			$order->order_status = "New";
+			$order->payment_method = $data['payment_method'];
+			$order->grand_total = $data['grand_total'];
+			$order->save();
+
+			$order_id = DB::getPdo()->lastInsertId();
+			$cartProducts = DB::table('cart')->where(['user_email'=>$user_email])->get();
+			foreach($cartProducts as $prod){
+				$cartpro = new OrdersProduct;
+				$cartpro->order_id = $order_id;
+				$cartpro->user_id = $user_id;
+				$cartpro->product_id = $prod->product_id;
+				$cartpro->product_code = $prod->product_code;
+				$cartpro->product_color = $prod->product_color;
+				$cartpro->product_name = $prod->product_name;
+				$cartpro->product_size = $prod->size;
+				$cartpro->product_price = $prod->price;
+				$cartpro->product_qty = $prod->quantity;
+				$cartpro->save();
+			}
+			Session::put('order_id',$order_id);
+			Session::put('grand_total',$data['grand_total']);
+
+			if($data['payment_method']=="COD"){
+				return redirect('/thanks');
+			}else{
+				return redirect('/esewa');
+			}
+		}
+	}
+
+	public function thanksPage(){
+		$user_email = Auth::User()->email;
+		DB::table('cart')->where(['user_email'=>$user_email])->delete();
+		return view('order.thanks');
+	}
+
+	//User order detail function//
+	public function userOrder(){
+		$user_id = Auth::User()->id;
+		$orders = Order::with('orders')->where('user_id',$user_id)->get();
+		// $orders = json_decode(json_encode($orders));
+		// echo "<pre>"; print_r($orders); die;
+		return view('order.user_orders',compact('orders'));
+	}
+
+	public function userOrderDetails($order_id){
+		$user_id = Auth::User()->id;
+		$orderDetail = Order::with('orders')->where('id',$order_id)->first();
+		$orderDetail = json_decode(json_encode($orderDetail));
+		// echo "<pre>"; print_r($OrderDetail); die;
+		return view('order.order_detail',compact('orderDetail'));
+	}
+
+	//Payment Paypal function//
+	public function Esewa(){
+		$user_email = Auth::User()->email;
+		DB::table('cart')->where(['user_email'=>$user_email])->delete();
+		return view('order.esewa');
 	}
 }
-  

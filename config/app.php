@@ -165,6 +165,7 @@ return [
         /*
          * Package Service Providers...
          */
+            Esewa\EsewaServiceProvider::class,
 
         /*
          * Application Service Providers...

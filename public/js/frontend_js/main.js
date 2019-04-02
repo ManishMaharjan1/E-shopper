@@ -67,6 +67,7 @@ $(document).ready(function(){
         var image = $(this).attr('src');
         $(".mainImage").attr("src", image);
     });
+
     // Instantiate EasyZoom instances
         var $easyzoom = $('.easyzoom').easyZoom();
 
@@ -255,7 +256,27 @@ $(document).ready(function(){
         }
     });
 
-
+    //Shipping Address is same as billing address//
+    $("#billship").on('click',function(){
+        if(this.checked){
+            $("#shipping_name").val($("#billing_name").val());
+            $("#shipping_address").val($("#billing_address").val());
+            $("#shipping_city").val($("#billing_city").val());
+            $("#shipping_state").val($("#billing_state").val());
+            $("#shipping_country").val($("#billing_country").val());
+            $("#shipping_pincode").val($("#billing_pincode").val());
+            $("#shipping_mobile").val($("#billing_mobile").val());
+        }
+        else{
+             $("#shipping_name").val('');
+            $("#shipping_address").val('');
+            $("#shipping_city").val('');
+            $("#shipping_state").val('');
+            $("#shipping_country").val('');
+            $("#shipping_pincode").val('');
+            $("#shipping_mobile").val('');
+        }
+    });
 
    //Password strength script//
    $('#myPassword').passtrength({
@@ -267,21 +288,11 @@ $(document).ready(function(){
 
 });
 
-
-// $("#current_pwd").keyup(function(){
-//   var current_pwd = $("#current_pwd").val();
-//   $.ajax({
-//    type:'get',
-//    url:'/check-user-pwd',
-//    data:{current_pwd:current_pwd},
-//    success:function(resp){
-//     if(resp=="false"){
-//      $("#chkPwd").html("<font color='red'>Current Password is incorrect</font>");
-//     }else if(resp=="true"){
-//      $("#chkPwd").html("<font color='green'>Current Password is correct</font>");
-//     }
-//    },error:function(){
-//     alert("Error");
-//    }
-//   });
-//  });
+ function selectPaymentMethod(){
+        if($("#Paypal").is(':checked') || $("#COD").is(':checked')){
+            // alert("checked");
+        }else{
+            alert("Please select your Payment option");
+             return false;
+        }
+    }

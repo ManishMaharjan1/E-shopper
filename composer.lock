@@ -4,8 +4,50 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "872a790730051a4831a55fc54e0a71f2",
+    "content-hash": "9ad83135680598b73f50993593c6ce40",
     "packages": [
+        {
+            "name": "act360/laravel-esewa",
+            "version": "v0.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/act360/laravel-esewa.git",
+                "reference": "48c70c26ff4660167ff157ee2559c10d5e1906e6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/act360/laravel-esewa/zipball/48c70c26ff4660167ff157ee2559c10d5e1906e6",
+                "reference": "48c70c26ff4660167ff157ee2559c10d5e1906e6",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/database": "~5.3",
+                "illuminate/support": "~5.3"
+            },
+            "require-dev": {
+                "mockery/mockery": "~0.9",
+                "phpunit/phpunit": "~4.0",
+                "vlucas/phpdotenv": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Esewa\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Santosh Jung Shahi",
+                    "email": "santosh.act360@gmail.com"
+                }
+            ],
+            "description": "A E-sewa payment gateway integration for laravel",
+            "time": "2017-05-19T11:13:59+00:00"
+        },
         {
             "name": "dnoegel/php-xdg-base-dir",
             "version": "0.1",
