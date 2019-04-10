@@ -17,11 +17,11 @@
 					</ol>
 
 					<div class="carousel-inner">
-						@foreach($banners as $key => $banner)
+						{{-- @foreach($banners as $key => $banner)
 						<div class="item @if($key==0) active @endif">
 							<img src="{{asset('images/banner/'.$banner->image)}}">
 						</div>
-						@endforeach
+						@endforeach --}}
 					</div>
 
 					<a href="#slider-carousel" class="left control-carousel hidden-xs" data-slide="prev">
@@ -46,7 +46,13 @@
 			</div>
 				<div class="col-sm-9 padding-right">
 					<div class="features_items"><!--features_items-->
-						<h2 class="title text-center">{{$categorydetails->category_name}}</h2>
+						<h2 class="title text-center">
+							@if(!empty($search_product))
+								{{ $search_product }} Item
+							@else
+								{{$categorydetails->category_name}} Items
+							@endif
+						</h2>
 						@foreach($allProducts as $product)
 						<div class="col-sm-4">
 							<div class="product-image-wrapper">

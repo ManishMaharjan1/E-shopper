@@ -20,7 +20,7 @@ class IndexController extends Controller
         // $categories = json_decode(json_encode($categories));
     	// echo "<pre>"; print_r($categories); die;	
         $banners = Banner::where('status','1')->get();
-	return view('index')->with(compact('allProducts','categories','sub_cat','banners'));
+	return view('index')->with(compact('allProducts','categories','banners'));
     }
 
 

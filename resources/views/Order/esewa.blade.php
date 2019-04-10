@@ -32,6 +32,7 @@
 	</div>
 </section>
 @endsection
+
 <?php
 Session::forget('grand_total');
 Session::forget('order_id');

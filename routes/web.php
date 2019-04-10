@@ -51,6 +51,9 @@ Route::get('/login-register','UserController@userLoginRegister');
 //User Register form//
 Route::post('/user-register','UserController@register');
 
+//Confirm Account//
+Route::get('confirm/{code}','UserController@confirmAccount');
+
 //Check if user already exists//
 Route::match(['get','post'],'/check-email','UserController@checkEmail');
 
@@ -59,6 +62,9 @@ Route::post('/user-login','UserController@login');
 
 //User Logout//
 Route::get('/user-logout','UserController@logout');
+
+//Search Route//
+Route::post('/search-products','ProductsController@searchProducts');
 
 //User Middleware//
 Route::group(['middleware'=>['frontlogin']],function(){
@@ -96,7 +102,7 @@ Route::group(['middleware'=>['frontlogin']],function(){
 
 
 //Admin Route//
-Route::group(['middleware'=>['auth']],function(){
+Route::group(['middleware'=>['adminlogin']],function(){
 	Route::get('/admin/dashboard','AdminController@dashboard');
 	Route::get('/admin/settings','AdminController@settings');
 	Route::get('/admin/check-pwd','AdminController@chkPassword');
@@ -135,7 +141,19 @@ Route::group(['middleware'=>['auth']],function(){
 	Route::match(['get','post'],'/admin/edit-banner/{id}','BannerController@editBanner');
 	Route::get('/admin/delete-banner/{id}','BannerController@deleteBanner');
 
+//Order Route (Admin)//
+	Route::get('/admin/view-orders','ProductsController@viewOrder');
+
+//Order Details(Admin)
+	Route::get('/admin/view-order/{id}','ProductsController@viewOrderDetail');
+
+//Order Status Route(Admin)//
+	Route::post('/admin/update-order-status','ProductsController@updateOrderStatus');
+
 	// Route::match(['get','post'],'/admin/add-logo','LogoController@addLogo');
+
+//Admin User Route//
+	Route::get('/admin/view-user','UserController@viewUsers');
 });
 
 //AdminLogout//

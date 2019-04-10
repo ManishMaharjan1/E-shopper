@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Mail;
 use App\Products;
 use App\Category;
 use App\ProductsAttribute;
@@ -279,7 +280,7 @@ class ProductsController extends Controller
 			foreach($subCategories as $subcat){
 				$cat_ids[] = $subcat->id;
 			}
-			$allProducts = Products::whereIn('category_id',$cat_ids )->get();
+			$allProducts = Products::whereIn('category_id',$cat_ids)->get(); /*->where('status','1')*/
 			
 		}
 		else{
@@ -288,6 +289,22 @@ class ProductsController extends Controller
 		}
 		$banners = Banner::where('status','1')->get();
 		return view('products.listing')->with(compact('categories','categorydetails','allProducts','banners'));			 
+	}
+
+	//Search Product Function//
+	public function searchProducts(Request $request){
+		if($request->isMethod('post')){
+			$data = $request->all();
+			/*echo "<pre>"; print_r($data); die;*/
+
+			$categories = Category::with('categories')->where(['parent_id'=>0])->get();
+
+			$search_product = $data['product'];
+
+			$allProducts = Products::where('product_name','like','%'.$search_product. '%')->orwhere('product_code',$search_product)->get();
+			/*->where('status',1)*/
+			return view('products.listing')->with(compact('categories','allProducts','search_product'));	
+		}
 	}
 
 	//Product Function for detail page//
@@ -411,6 +428,10 @@ class ProductsController extends Controller
 			Session::put('session_id', $session_id);
 		}
 
+		if(empty($data['size'])){
+            return redirect()->back()->with('flash_message_error','Please Provide Your Size ');
+        }
+
 		$size = explode("-",$data['size']);
 		$getSKU = ProductsAttribute::select('sku')->where(['product_id'=>$data['product_id'],'size'=>$size[1]])->first();
 		
@@ -473,7 +494,6 @@ class ProductsController extends Controller
 	}
 
 	public function applyCoupon(Request $request){
-
 		Session::forget('CouponAmount');
 		Session::forget('CouponCode');
 
@@ -658,8 +678,32 @@ class ProductsController extends Controller
 			Session::put('grand_total',$data['grand_total']);
 
 			if($data['payment_method']=="COD"){
+				$productdetails = Order::with('orders')->where('id',$order_id)->first();
+				$productdetails = json_decode(json_encode($productdetails),true);
+				// echo "<pre>"; print_r($productdetails); die;
+				
+				$userDetails = User::where('id',$user_id)->first();
+				$userDetails = json_decode(json_encode($userDetails),true);
+				// echo "<pre>"; print_r($userDetails); die;
+
+				/* Code for Order Email Start */
+				$email = $user_email;
+				$messageData = [
+					'email'=>$email,
+					'name'=>$shippingDetails->name,
+					'order_id'=>$order_id,
+					'productdetails'=>$productdetails,
+					'userDetails'=>$userDetails
+				];
+				Mail::send('email.order',$messageData,function($message) use($email){
+					$message->to($email)->subject('Order Palced - E-shoppe Website');
+				});
+				/* Code for order Email Ends */
+
+				//COD - Redirect user to Thanks Page after order//
 				return redirect('/thanks');
 			}else{
+				//Paypal- Redirect Usr to paypal page//
 				return redirect('/esewa');
 			}
 		}
@@ -688,10 +732,39 @@ class ProductsController extends Controller
 		return view('order.order_detail',compact('orderDetail'));
 	}
 
+	//Order Function//
+	public function viewOrder(){
+		$orders = Order::with('orders')->latest()->get();
+		$orders = json_decode(json_encode($orders));
+		// echo "<pre>"; print_r($orders); die;
+		return view('admin.orders.view_orders',compact('orders'));
+	}
+
+	//Order Detail in Admin//
+	public function viewOrderDetail($order_id){
+		$orderDetail = Order::with('orders')->where('id',$order_id)->first();
+		$orderDetail = json_decode(json_encode($orderDetail));
+		$user_id = $orderDetail->user_id;
+		$userDetails = User::where('id',$user_id)->first();
+		// $userDetails = json_decode(json_encode($userDetails));
+		// echo "<pre>"; print_r($orderDetail); die;
+		return view('admin.orders.order_detail',compact('orderDetail','userDetails'));
+	}
+
+	//Update order status function//
+	public function updateOrderStatus(Request $request){
+		if($request->isMethod('post')){
+			$data = $request->all();
+			Order::where('id',$data['order_id'])->update(['order_status'=>$data['order_status']]);
+			return redirect()->back()->with('flash_message_success','Order Status has been updated successfully');
+		}
+	}
+
 	//Payment Paypal function//
 	public function Esewa(){
 		$user_email = Auth::User()->email;
 		DB::table('cart')->where(['user_email'=>$user_email])->delete();
 		return view('order.esewa');
 	}
+
 }

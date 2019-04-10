@@ -3,7 +3,7 @@ $(document).ready(function(){
 	
 
 	$("#current_pwd").keyup(function(){
-		var current_pwd = $(this).val();
+		var current_pwd = $("#current_pwd").val();
 		//alert(current_pwd);
 		$.ajax({
 			type:'get',

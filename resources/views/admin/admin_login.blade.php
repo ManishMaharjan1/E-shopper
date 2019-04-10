@@ -28,12 +28,12 @@
         <form id="loginform" class="form-vertical"  method="post" action="{{url('admin')}}">
             {{ csrf_field() }}
             <div class="control-group normal_text"> 
-               <h3><img src="{{asset('images/backend_images/logo.png')}}" alt="Logo" /></h3></div>
+               <h3><img src="{{asset('images/frontend_images/logo.png')}}" alt="Logo" style="height: 75px;" /></h3></div>
                <div class="control-group">
                 <div class="controls">
                     <div class="main_input_box">
                         <span class="add-on bg_lg"><i class="icon-user"> </i></span>
-                        <input type="text" name="email" placeholder="Username" />
+                        <input type="text" name="username" placeholder="Username" required />
                     </div>
                 </div>
             </div>
